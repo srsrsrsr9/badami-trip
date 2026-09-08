@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Badami Trip</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap');
+
+  :root {
+    --bg: #EBEEE3;
+    --surface: #F7F8F2;
+    --ink: #252A20;
+    --ink-soft: #585F49;
+    --accent: #33566B;
+    --accent-soft: #CBD9D6;
+    --line: #D9DCC9;
+    --done: #7C9473;
+    --danger: #A65D4E;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #root { min-height: 100vh; }
+
+  .shell { max-width: 560px; margin: 0 auto; padding: 24px 18px 60px; }
+
+  .loading-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); font-size: 14px; }
+
+  .header { margin-bottom: 18px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .trip-title { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 26px; margin: 0; letter-spacing: -0.01em; }
+  .trip-dates { font-size: 13.5px; color: var(--ink-soft); margin: 4px 0 0; }
+
+  .auth-chip { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+  .auth-chip-top { display: flex; align-items: center; gap: 7px; }
+  .auth-avatar { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); }
+  .auth-name { font-size: 12.5px; color: var(--ink-soft); }
+  .signout-btn { background: none; border: none; color: var(--ink-soft); font-size: 11.5px; cursor: pointer; padding: 0; text-decoration: underline; }
+
+  .status-banner { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; margin-bottom: 16px; }
+  .status-banner.today { border-color: var(--accent); background: var(--accent-soft); }
+
+  .day-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .day-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .day-card.is-today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+
+  .day-header { width: 100%; background: none; border: none; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-align: left; font: inherit; color: inherit; gap: 10px; }
+  .day-header-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .day-date { font-size: 12.5px; color: var(--ink-soft); }
+  .day-title-text { font-family: 'Fraunces', Georgia, serif; font-weight: 500; font-size: 17px; }
+  .day-header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .day-badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; background: var(--accent); color: var(--surface); white-space: nowrap; }
+  .day-badge.past { background: var(--line); color: var(--ink-soft); }
+  .chevron { color: var(--ink-soft); transition: transform 0.15s ease; flex-shrink: 0; }
+  .chevron.open { transform: rotate(180deg); }
+
+  .day-progress-track { height: 4px; background: var(--accent-soft); border-radius: 2px; overflow: hidden; margin: 0 16px; }
+  .day-progress-fill { height: 100%; background: var(--accent); transition: width 0.25s ease; }
+
+  .day-body { padding: 12px 16px 16px; }
+
+  .section-label { font-size: 12px; color: var(--ink-soft); margin: 0 0 7px; }
+
+  .plan-list { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .plan-item { font-size: 13.5px; color: var(--ink-soft); line-height: 1.4; padding-left: 14px; position: relative; }
+  .plan-item::before { content: ""; position: absolute; left: 0; top: 7px; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+
+  .map-wrap { margin-bottom: 16px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  .map-frame { display: block; width: 100%; height: 200px; border: 0; }
+
+  .item-list { display: flex; flex-direction: column; }
+  .item-row { display: flex; align-items: center; gap: 9px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .item-row:last-child { border-bottom: none; }
+
+  .checkbox { width: 21px; height: 21px; min-width: 21px; border-radius: 50%; border: 1.75px solid var(--ink-soft); background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+  .checkbox.done { background: var(--done); border-color: var(--done); }
+
+  .item-text { flex: 1; font-size: 14.5px; line-height: 1.3; }
+  .item-text.done { color: var(--ink-soft); text-decoration: line-through; }
+
+  .assignee-chip { width: 24px; height: 24px; min-width: 24px; border-radius: 50%; border: 1px solid var(--line); background: var(--accent-soft); color: var(--accent); font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+  .icon-btn { background: none; border: none; color: var(--ink-soft); padding: 4px; cursor: pointer; display: flex; flex-shrink: 0; }
+
+  .move-picker { display: flex; gap: 6px; padding: 2px 0 10px 30px; flex-wrap: wrap; }
+  .move-chip { font-size: 12px; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+
+  .add-row { display: flex; gap: 8px; margin-top: 12px; }
+  .add-input { flex: 1; border: 1px solid var(--line); background: var(--bg); border-radius: 9px; padding: 10px 12px; font-size: 14.5px; color: var(--ink); outline: none; transition: border-color .15s ease, box-shadow .15s ease; }
+  .add-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(51,86,107,0.15); }
+  .add-btn { width: 38px; height: 38px; min-width: 38px; border-radius: 9px; border: none; background: var(--accent); color: var(--surface); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+  .signin-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .signin-card { max-width: 340px; text-align: center; }
+  .signin-card h1 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 26px; margin: 0 0 8px; }
+  .signin-card p { font-size: 14.5px; color: var(--ink-soft); margin: 0 0 24px; line-height: 1.5; }
+
+  .google-btn { display: inline-flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; padding: 11px 20px; font-size: 14.5px; font-weight: 500; color: var(--ink); cursor: pointer; }
+  .google-g { width: 18px; height: 18px; }
+
+  .error-banner { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: var(--danger); color: var(--surface); font-size: 13px; padding: 8px 14px; border-radius: 8px; z-index: 10; text-align: center; max-width: 90%; }
+
+  .empty-text { color: var(--ink-soft); font-size: 13.5px; padding: 4px 0 6px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Firebase (compat build — simplest to use from plain script tags, no bundler needed) -->
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
+  <!-- Your project's own config — edit this file, see README.md -->
+  <script src="firebase-config.js"></script>
+
+  <!-- React, no build step: Babel transforms the JSX in app.js right in the browser -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+  <script type="text/babel" src="app.js"></script>
+</body>
+</html>
