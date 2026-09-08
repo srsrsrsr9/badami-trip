@@ -382,7 +382,7 @@ function App() {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                               <button
                                 onClick={() => toggleAssignee(item.id)}
-                                title="Assign to Vinay (V) or Sravanthi (S)"
+                                title="Assign to srinivas (V) or Sravanthi (S)"
                                 style={{
                                   width: '28px',
                                   height: '28px',
